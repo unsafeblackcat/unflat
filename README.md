@@ -1,8 +1,11 @@
 ## 环境需求
-目前测试了 ida 9.0 版本和 ida 9.2 版本可以执行
+目前测试了ida 7.7版本、ida 9.0 版本和 ida 9.2 版本可以执行。
 
 ## 安装
-把 flatPlugin.py 和 unflat 文件夹放入到 ida 文件夹下 plugins 文件夹中即可
+把 flatPlugin.py 和 unflat 文件夹放入到 ida 文件夹下 plugins 文件夹中即可。
+
+## 注意事项
+如果ida出现报错, 并且在输出窗口中出现“INTERR 51652”, 需要关闭 死代码消除 选项。
 
 ## 使用方法
 在 edit->plugin 中点击“OLLVM 反混淆”
