@@ -192,18 +192,25 @@ class Unflattener:
     
     def deflat_level_1(self):
         """
-        根据分发器的存储器匹配
+        剔除具有双重变量的块
         """
-        nb_patch = 0
+        seen = set()
+        black_list = set()
         for state_assignment in self.state_assignments:
-            if state_assignment['storage'] == self.storage_carrier:
-                flow_block = self.find_in_possible_states(valrange_value=state_assignment['value'])
-                if flow_block != None:
-                    next_mblock_id = flow_block['mblock_id']
-                    cur_mblock_id = state_assignment['mblock_id']
+            mblock_id = state_assignment['mblock_id']
+            if mblock_id in seen:
+                black_list.add(mblock_id)
+            seen.add(mblock_id)
+        for state_assignment in self.state_assignments:
+            flow_block = self.find_in_possible_states(valrange_name=state_assignment['storage'], valrange_value=state_assignment['value'])
+            if flow_block != None:
+                next_mblock_id = flow_block['mblock_id']
+                cur_mblock_id = state_assignment['mblock_id']
+                if cur_mblock_id not in black_list:
                     cur_mblock = self.mba.get_mblock(cur_mblock_id)
                     change_jmp_target(cur_mblock, next_mblock_id)
-                    nb_patch += 1
+                else:
+                    logging.debug(f"在同一个mblock{cur_mblock_id}里面存在两重赋值")
 
     def deflat_level_2(self):
         """
@@ -279,7 +286,7 @@ class HexraysDecompilationHook(Hexrays_Hooks):
             # struction.instructions_fix()
             if config.enable_ollvm_unflatten:
                 unflat = Unflattener(mba)
-                unflat.deflat(2)
+                unflat.deflat(1)
             # mba.remove_empty_and_unreachable_blocks()
             # dump_microcode_for_debug(mba, "D:\\project\\ida_split", "after_unflatten")
             self.deflat_list.append(mba.entry_ea)
